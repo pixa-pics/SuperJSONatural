@@ -1,5 +1,7 @@
 # SuperJSONatural
 
+![SuperJSONatural branding logo](https://raw.githubusercontent.com/pixa-pics/SuperJSONatural/main/Branding.png)
+
 ## Information :mag:
 
 ![MIT](https://img.shields.io/badge/license-MIT-green)

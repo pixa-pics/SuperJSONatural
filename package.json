@@ -1,6 +1,6 @@
 {
   "name": "superjsonatural",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SuperJSONatural ⚡ ~7.3kB | JSON yet, lighter & faster with the support of all JS TypedArray",
   "devDependencies": {},
   "build": {},
