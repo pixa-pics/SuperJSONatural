@@ -4,7 +4,7 @@
 
 ![MIT](https://img.shields.io/badge/license-MIT-green)
 
-JSON with all TypedArray objects supported safely and faster! It uses a Base64 optimized algorithm...
+JSON yet, lighter & faster with the support of all JS TypedArray! It uses a Base64 optimized algorithm...
  
 ![npm](https://img.shields.io/npm/dw/superjsonatural?label=NPM%20DOWNLOAD&logo=NPM)
  
@@ -13,7 +13,7 @@ DEMO : [Go to codepen.io](https://codepen.io/vipertechofficial/pen/jOpyNZy) :spa
 
 ## Install :package:
 
-> Download it from NPM easily, use /raw or /browser to get other kind of JS bundles once it has been installed inside your project
+> Download it from NPM easily
 
 **Run :**
 

@@ -35,18 +35,18 @@ Copyright (c) 2020 Egor Nepomnyaschih
 Copyright (c) 2022 - 2023 Affolter Matias
 */
 
+var base64abcCC = Uint8Array.of(65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43, 47);
+
 SuperJSONatural.bytesToBase64 = function(bytes) {
     "use strict";
 
-    const base64abcCC = Uint8ClampedArray.of(65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43, 47);
+    var i = 2, j = 0;
+    var l = bytes.length | 0;
 
-    let i = 2, j = 0;
-    let l = bytes.length | 0;
-
-    let k = l % 3;
-    let n = Math.floor(l / 3) * 4 + (k && k + 1);
-    let N = Math.ceil(l / 3) * 4;
-    let result = new Uint8ClampedArray(N);
+    var k = l % 3;
+    var n = Math.floor(l / 3) * 4 + (k && k + 1);
+    var N = Math.ceil(l / 3) * 4;
+    var result = new Uint8Array(N);
 
     for (i = 2, j = 0; (i|0) < (l|0); i = (i+3|0)>>>0, j = (j+4|0)>>>0) {
         result[j] = base64abcCC[bytes[i - 2 | 0] >> 2] & 0xFF;
@@ -69,7 +69,7 @@ SuperJSONatural.bytesToBase64 = function(bytes) {
         j = (j+4|0)>>>0;
     }
 
-    let s = "";
+    var s = "";
     for(i = 0; i < result.length; i = (i+1024|0)>>>0){
         s = s.concat(String.fromCharCode.apply(null, result.subarray(i, Math.min(i+1024|0, result.length))));
     }
@@ -77,54 +77,59 @@ SuperJSONatural.bytesToBase64 = function(bytes) {
     return s;
 }
 
-SuperJSONatural.base64ToBytes = function (str) {
+var base64error_code = 255;
+var base64codes = Uint8Array.of(255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62, 255, 255, 255, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 255, 255, 255, 0, 255, 255, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 255, 255, 255, 255, 255, 255, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51);
+var base64codes_length = base64codes.length | 0;
 
-    const base64error_code = 255;
-    const base64codes = Uint8ClampedArray.of(255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62, 255, 255, 255, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 255, 255, 255, 0, 255, 255, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 255, 255, 255, 255, 255, 255, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51);
-    const base64codes_length = base64codes.length | 0;
+function charCodeAt(s) {
+    return s.charCodeAt(0) & 0xFF;
+}
+function getBase64CodesBufferResults(buffer) {
+    return Uint8Array.of( buffer >> 16, (buffer >> 8) & 0xFF, buffer & 0xFF)
+}
+function getBase64CodesBufferResultsBy4(buffer_1, buffer_2, buffer_3, buffer_4 ) {
+    return Uint8Array.of(
+        buffer_1 >> 16, (buffer_1 >> 8) & 0xFF, buffer_1 & 0xFF,
+        buffer_2 >> 16, (buffer_2 >> 8) & 0xFF, buffer_2 & 0xFF,
+        buffer_3 >> 16, (buffer_3 >> 8) & 0xFF, buffer_3 & 0xFF,
+        buffer_4 >> 16, (buffer_4 >> 8) & 0xFF, buffer_4 & 0xFF
+    );
+}
+function getBase64Code(char_code) {
 
-    function charCodeAt(s) {
-        return s.charCodeAt(0) & 0xFF;
-    }
-    function getBase64CodesBufferResults(buffer) {
-        return Uint8ClampedArray.of( buffer >> 16, (buffer >> 8) & 0xFF, buffer & 0xFF)
-    }
-    function getBase64CodesBufferResultsBy4(buffer_1, buffer_2, buffer_3, buffer_4 ) {
-        return Uint8ClampedArray.of(
-            buffer_1 >> 16, (buffer_1 >> 8) & 0xFF, buffer_1 & 0xFF,
-            buffer_2 >> 16, (buffer_2 >> 8) & 0xFF, buffer_2 & 0xFF,
-            buffer_3 >> 16, (buffer_3 >> 8) & 0xFF, buffer_3 & 0xFF,
-            buffer_4 >> 16, (buffer_4 >> 8) & 0xFF, buffer_4 & 0xFF
-        );
-    }
-    function getBase64Code(char_code) {
+    return (base64codes[(char_code | 0) & 0xFF] | 0) >>> 0;
+}
+function getBase64CodesBuffer(str_char_codes) {
+    return (getBase64Code(str_char_codes[0]) << 18 | getBase64Code(str_char_codes[1]) << 12 | getBase64Code(str_char_codes[2]) << 6 | getBase64Code(str_char_codes[3]) | 0) >>> 0;
+}
 
-        char_code = (char_code | 0) >>> 0;
-        if (((char_code|0)>>>0) >= ((base64codes_length|0)>>>0)) {throw new Error("Unable to parse base64 string.");}
-        const code = (base64codes[char_code] | 0) >>> 0;
-        if (((code|0)>>>0) == ((base64error_code|0)>>>0)) {throw new Error("Unable to parse base64 string.");}
-        return code;
-    }
-    function getBase64CodesBuffer(str_char_codes) {
-        return (getBase64Code(str_char_codes[0]) << 18 | getBase64Code(str_char_codes[1]) << 12 | getBase64Code(str_char_codes[2]) << 6 | getBase64Code(str_char_codes[3]) | 0) >>> 0;
+SuperJSONatural.base64ToBytes = function (str, offset) {
+
+    offset = offset | 0;
+    var j = 0, i = 0;
+    var str_length = str.length|0;
+    var str_char_code = Uint8Array.from(str_length - offset | 0);
+
+    for(; (offset+4|0) < (str_length|0); offset = (offset+4|0)>>>0, i = (i+4|0)>>>0) {
+
+        str_char_code[i|0] = str.charCodeAt(offset|0) & 0xFF;
+        str_char_code[i+1|0] = str.charCodeAt(offset+1|0) & 0xFF;
+        str_char_code[i+2|0] = str.charCodeAt(offset+2|0) & 0xFF;
+        str_char_code[i+3|0] = str.charCodeAt(offset+3|0) & 0xFF;
     }
 
-    if ((str.length % 4 | 0) > 0) {
-        throw new Error("Unable to parse base64 string.");
-    }
-    const index = str.indexOf("=") | 0;
-    if ((index|0) > -1 && (index|0) < (str.length - 2 | 0)) {
-        throw new Error("Unable to parse base64 string.");
+    for(; (offset|0) < (str_length|0); offset = (offset+1|0)>>>0, i = (i+1|0)>>>0) {
+
+        str_char_code[i|0] = str.charCodeAt(offset|0) & 0xFF;
     }
 
-    let str_char_code = Uint8ClampedArray.from(str.split("").map(function(s){ return charCodeAt(s)}));
-    let missingOctets = str.endsWith("==") ? 2 : str.endsWith("=") ? 1 : 0,
-        n = str.length | 0,
-        result = new Uint8ClampedArray(3 * (n / 4));
+    var missingOctets = str.endsWith("==") ? 2 : str.endsWith("=") ? 1 : 0,
+        n = str_char_code.length | 0,
+        result = new Uint8Array(3 * (n / 4));
 
-    let str_char_code_splitted = new Uint8ClampedArray(16);
-    let i = 0, j = 0;
-    for (;(i+16|0) < (n|0); i = (i+16|0)>>>0, j = (j+12|0)>>>0) { // Single Operation Multiple Data (SIMD) up to 3x faster
+    var str_char_code_splitted = new Uint8Array(16);
+
+    for (i = 0;(i+16|0) < (n|0); i = (i+16|0)>>>0, j = (j+12|0)>>>0) { // Single Operation Multiple Data (SIMD) up to 3x faster
 
         str_char_code_splitted.set(str_char_code.subarray(i, i+16|0));
         result.set(getBase64CodesBufferResultsBy4(
@@ -518,7 +523,7 @@ SuperJSONatural.prototype.stringify = function(data) {
 
 SuperJSONatural.prototype.parse = function(tree_for_json) {
 
-    var data = null;
+    var data = [];
     function decode_something(to, something, types, get_type, from_string) {
 
         var type = get_type(something);
@@ -528,28 +533,25 @@ SuperJSONatural.prototype.parse = function(tree_for_json) {
             if(something.startsWith("$TA_")) {
 
                 var id = parseInt(something.charAt(4)+something.charAt(5), 10);
-                something = something.replace("$TA_"+id+"_B64$", "");
-                something = new types[id].instanceof(from_string(something));
-            }
+                to = new types[id|0].instanceof(from_string(something, 11));
+            }else {
 
-            to = something;
+                to = something;
+            }
 
         }else if(type.id === 23) {
 
-            to = Array.from(something);
-            to.forEach(function (to_within, to_index){
+            something.forEach(function (to_within, to_index){
 
                 // to_index -> key, to_within -> value
-                to[to_index] = decode_something(null, to_within, types, get_type, from_string);
+                to[to_index] = decode_something([], to_within, types, get_type, from_string);
             })
 
         }else if(type.id === 24) {
 
-            to = Object.assign({}, something);
-            Object.entries(to).forEach(function (entry){
+            Object.keys(something).forEach(function (key){
 
-                // 0 -> key, 1 -> value
-                to[entry[0]] = decode_something(null, entry[1], types, get_type, from_string);
+                to[key] = decode_something({}, something[key], types, get_type, from_string);
             });
 
         }else {
