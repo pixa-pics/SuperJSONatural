@@ -567,7 +567,7 @@ SuperJSONatural.prototype.parse = function(tree_for_json) {
     return decode_something(data, JSON.parse(tree_for_json), SuperJSONatural.TYPES, SuperJSONatural.getTypeFromData, decode);
 };
 
-if(module) {
+if(typeof module != "undefined") {
     module.exports = SuperJSONatural;
 }else {
     window.SuperJSONatural = SuperJSONatural;
