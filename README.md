@@ -24,8 +24,8 @@ var data = {
 		hair: Uint32Array.of(999)
 	}
 };
-var encoded = SuperJSONatural().encode(data);
-var decoded = SuperJSONatural().decode(encoded);
+var encoded = SuperJSONatural().stringify(data);
+var decoded = SuperJSONatural().parse(encoded);
 console.log(data, encoded, decoded)
 
 ```

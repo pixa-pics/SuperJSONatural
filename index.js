@@ -469,7 +469,7 @@ SuperJSONatural.getTypeFromData = function (data){
     }
 }
 
-SuperJSONatural.prototype.encode = function(data) {
+SuperJSONatural.prototype.stringify = function(data) {
 
     var tree_for_json = null;
     function encode_something(to, something, get_type, to_string) {
@@ -516,7 +516,7 @@ SuperJSONatural.prototype.encode = function(data) {
 };
 
 
-SuperJSONatural.prototype.decode = function(tree_for_json) {
+SuperJSONatural.prototype.parse = function(tree_for_json) {
 
     var data = null;
     function decode_something(to, something, types, get_type, from_string) {
