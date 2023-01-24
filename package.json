@@ -1,0 +1,37 @@
+{
+  "name": "superjsonatural",
+  "version": "0.1.0",
+  "description": "SuperJSONatural ⚡ ~7kB | JSON yet, smarter regarding the support of all JS TypedArray",
+  "devDependencies": {},
+  "build": {},
+  "scripts": {},
+  "author": "Affolter Matias",
+  "keywords": [
+    "superjsonatural",
+    "super-json",
+    "json",
+    "typedarray",
+    "uint8",
+    "buffer",
+    "arraybuffer",
+    "serializer",
+    "deserializer",
+    "parse",
+    "stringify",
+    "string",
+    "buffer",
+    "parse",
+    "array",
+    "encode",
+    "decode"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pixa-pics/SuperJSONatural.git"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "dependencies": {}
+}
