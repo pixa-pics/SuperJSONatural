@@ -541,17 +541,19 @@ SuperJSONatural.prototype.parse = function(tree_for_json) {
 
         }else if(type.id === 23) {
 
+	    to = [];
             something.forEach(function (to_within, to_index){
 
                 // to_index -> key, to_within -> value
-                to[to_index] = decode_something([], to_within, types, get_type, from_string);
+                to[to_index] = decode_something(null, to_within, types, get_type, from_string);
             })
 
         }else if(type.id === 24) {
 
+	    to = {};
             Object.keys(something).forEach(function (key){
 
-                to[key] = decode_something({}, something[key], types, get_type, from_string);
+                to[key] = decode_something(null, something[key], types, get_type, from_string);
             });
 
         }else {

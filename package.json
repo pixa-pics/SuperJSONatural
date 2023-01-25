@@ -1,8 +1,10 @@
 {
   "name": "superjsonatural",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "SuperJSONatural ⚡ ~7.3kB | JSON yet, lighter & faster with the support of all JS TypedArray",
-  "devDependencies": {},
+  "devDependencies": {
+    "tinyify": "^4.0.0"
+  },
   "build": {},
   "scripts": {},
   "author": "Affolter Matias",
@@ -32,6 +34,5 @@
   },
   "engines": {
     "node": ">=0.8.0"
-  },
-  "dependencies": {}
+  }
 }
