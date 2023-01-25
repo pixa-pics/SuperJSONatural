@@ -150,7 +150,7 @@ SuperJSONatural.prototype.base64ToBytes = function (str, offset, constructor) {
         result.set(getBase64CodesBufferResults(getBase64CodesBuffer(str_char_code.slice(i|0, i+4|0))), j);
     }
 
-    return new constructor(result, 0, result.length - missingOctets);
+    return new constructor(result.buffer.slice(0, result.length - missingOctets));
 }
 
 SuperJSONatural.TYPES = [
