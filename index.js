@@ -37,7 +37,7 @@ Copyright (c) 2022 - 2023 Affolter Matias
 
 var base64abcCC = Uint8Array.of(65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43, 47);
 
-SuperJSONatural.bytesToBase64 = function(bytes) {
+SuperJSONatural.prototype.bytesToBase64 = function(bytes) {
     "use strict";
 
     var i = 2, j = 0;
@@ -97,41 +97,47 @@ function getBase64CodesBufferResultsBy4(buffer_1, buffer_2, buffer_3, buffer_4 )
 }
 function getBase64Code(char_code) {
 
-    return (base64codes[(char_code | 0) & 0xFF] | 0) & 0xFF;
+    char_code = (char_code | 0) & 0xFF;
+    return (base64codes[char_code] | 0) & 0xFF;
+
 }
 function getBase64CodesBuffer(str_char_codes) {
     return (getBase64Code(str_char_codes[0]) << 18 | getBase64Code(str_char_codes[1]) << 12 | getBase64Code(str_char_codes[2]) << 6 | getBase64Code(str_char_codes[3]) | 0) >>> 0;
 }
 
-SuperJSONatural.base64ToBytes = function (str, offset) {
+SuperJSONatural.prototype.base64ToBytes = function (str, offset, constructor) {
 
     offset = offset | 0;
-    var j = 0, i = 0;
-    var str_length = str.length|0;
-    var str_char_code = Uint8Array.from(str_length - offset | 0);
 
-    for(; (offset+4|0) < (str_length|0); offset = (offset+4|0)>>>0, i = (i+4|0)>>>0) {
+    var str_char_code = new Uint8Array(str.length - offset|0);
+    var str_char_code_length = str_char_code.length;
+    var i = 0, j = 0;
 
-        str_char_code[i|0] = str.charCodeAt(offset|0) & 0xFF;
-        str_char_code[i+1|0] = str.charCodeAt(offset+1|0) & 0xFF;
-        str_char_code[i+2|0] = str.charCodeAt(offset+2|0) & 0xFF;
-        str_char_code[i+3|0] = str.charCodeAt(offset+3|0) & 0xFF;
+    for(i = 0, j = offset; (i+7|0) < (str_char_code_length|0); i = (i+8|0)>>>0, j = (j+8|0)>>>0){
+
+        str_char_code[i|0] = str.charCodeAt(j|0) & 0xFF;
+        str_char_code[i+1|0] = str.charCodeAt(j+1|0) & 0xFF;
+        str_char_code[i+2|0] = str.charCodeAt(j+2|0) & 0xFF;
+        str_char_code[i+3|0] = str.charCodeAt(j+3|0) & 0xFF;
+        str_char_code[i+4|0] = str.charCodeAt(j+4|0) & 0xFF;
+        str_char_code[i+5|0] = str.charCodeAt(j+5|0) & 0xFF;
+        str_char_code[i+6|0] = str.charCodeAt(j+6|0) & 0xFF;
+        str_char_code[i+7|0] = str.charCodeAt(j+7|0) & 0xFF;
     }
 
-    for(; (offset|0) < (str_length|0); offset = (offset+1|0)>>>0, i = (i+1|0)>>>0) {
-
-        str_char_code[i|0] = str.charCodeAt(offset|0) & 0xFF;
+    for(; (i|0) < (str_char_code_length|0); i = (i+1|0)>>>0, j = (j+1|0)>>>0){
+        str_char_code[i|0] = str.charCodeAt(j|0) & 0xFF;
     }
 
     var missingOctets = str.endsWith("==") ? 2 : str.endsWith("=") ? 1 : 0,
-        n = str_char_code.length | 0,
+        n = str.length - offset | 0,
         result = new Uint8Array(3 * (n / 4));
 
     var str_char_code_splitted = new Uint8Array(16);
+    i = 0, j = 0;
+    for (;(i+16|0) < (n|0); i = (i+16|0)>>>0, j = (j+12|0)>>>0) { // Single Operation Multiple Data (SIMD) up to 3x faster
 
-    for (i = 0;(i+16|0) < (n|0); i = (i+16|0)>>>0, j = (j+12|0)>>>0) { // Single Operation Multiple Data (SIMD) up to 3x faster
-
-        str_char_code_splitted = str_char_code.subarray(i, i+16|0);
+        str_char_code_splitted = str_char_code.slice(i|0, i+16|0);
         result.set(getBase64CodesBufferResultsBy4(
             getBase64CodesBuffer(str_char_code_splitted.subarray(0, 4)),
             getBase64CodesBuffer(str_char_code_splitted.subarray(4, 8)),
@@ -141,10 +147,10 @@ SuperJSONatural.base64ToBytes = function (str, offset) {
     }
 
     for (;(i|0) < (n|0); i = (i+4|0)>>>0, j = (j+3|0)>>>0) { // Single Operation Single Data (normal)
-        result.set(getBase64CodesBufferResults(getBase64CodesBuffer(str_char_code.subarray(i, i+4|0))), j);
+        result.set(getBase64CodesBufferResults(getBase64CodesBuffer(str_char_code.slice(i|0, i+4|0))), j);
     }
 
-    return result.slice(0, result.length - missingOctets | 0);
+    return new constructor(result, 0, result.length - missingOctets);
 }
 
 SuperJSONatural.TYPES = [
@@ -378,7 +384,7 @@ SuperJSONatural.TYPES = [
     }
 ];
 
-SuperJSONatural.getTypeFromData = function (data){
+SuperJSONatural.prototype.getTypeFromData = function (data){
 
     switch(typeof data) {
 
@@ -487,8 +493,8 @@ SuperJSONatural.prototype.stringify = function(data) {
 
         }else if(type.id === 23) {
 
-            to = Array.from(something);
-            to.forEach(function (to_within, to_index){
+            to = [];
+            something.forEach(function (to_within, to_index){
 
                 // to_index -> key, to_within -> value
                 to[to_index] = encode_something(null, to_within, get_type, to_string);
@@ -496,8 +502,8 @@ SuperJSONatural.prototype.stringify = function(data) {
 
         }else if(type.id === 24) {
 
-            to = Object.assign({}, something);
-            Object.entries(to).forEach(function (entry){
+            to = {};
+            Object.entries(something).forEach(function (entry){
 
                 // 0 -> key, 1 -> value
                 to[entry[0]] = encode_something(null, entry[1], get_type, to_string);
@@ -511,11 +517,18 @@ SuperJSONatural.prototype.stringify = function(data) {
         return to;
     }
 
+    var bytesToBase64 = this.bytesToBase64;
     function encode(it) {
-        return SuperJSONatural.bytesToBase64(new Uint8Array(it));
+        return bytesToBase64(new Uint8Array(it));
     }
 
-    tree_for_json = encode_something(tree_for_json, data, SuperJSONatural.getTypeFromData, encode);
+    var getTypeFromData = this.getTypeFromData;
+    function get_type(something) {
+
+        return getTypeFromData(something);
+    }
+
+    tree_for_json = encode_something(tree_for_json, data, get_type, encode);
 
     return JSON.stringify(tree_for_json);
 };
@@ -523,7 +536,7 @@ SuperJSONatural.prototype.stringify = function(data) {
 
 SuperJSONatural.prototype.parse = function(tree_for_json) {
 
-    var data = [];
+    var data = null;
     function decode_something(to, something, types, get_type, from_string) {
 
         var type = get_type(something);
@@ -533,15 +546,14 @@ SuperJSONatural.prototype.parse = function(tree_for_json) {
             if(something.startsWith("$TA_")) {
 
                 var id = parseInt(something.charAt(4)+something.charAt(5), 10);
-                to = new types[id|0].instanceof(from_string(something, 11));
-            }else {
-
-                to = something;
+                something = from_string(something, 11, types[id].instanceof);
             }
+
+            to = something;
 
         }else if(type.id === 23) {
 
-	    to = [];
+            to = [];
             something.forEach(function (to_within, to_index){
 
                 // to_index -> key, to_within -> value
@@ -550,10 +562,11 @@ SuperJSONatural.prototype.parse = function(tree_for_json) {
 
         }else if(type.id === 24) {
 
-	    to = {};
-            Object.keys(something).forEach(function (key){
+            to = {};
+            Object.entries(something).forEach(function (entry){
 
-                to[key] = decode_something(null, something[key], types, get_type, from_string);
+                // 0 -> key, 1 -> value
+                to[entry[0]] = decode_something(null, entry[1], types, get_type, from_string);
             });
 
         }else {
@@ -564,11 +577,19 @@ SuperJSONatural.prototype.parse = function(tree_for_json) {
         return to;
     }
 
-    function decode(it) {
-        return SuperJSONatural.base64ToBytes(it).buffer;
+    var base64ToBytes = this.base64ToBytes;
+    function decode(string, offset, constructor) {
+        return base64ToBytes(string, offset, constructor);
     }
 
-    return decode_something(data, JSON.parse(tree_for_json), SuperJSONatural.TYPES, SuperJSONatural.getTypeFromData, decode);
+    var getTypeFromData = this.getTypeFromData;
+    function get_type(something) {
+
+        return getTypeFromData(something);
+    }
+
+
+    return decode_something(data, JSON.parse(tree_for_json), SuperJSONatural.TYPES, get_type, decode);
 };
 
 if(typeof module != "undefined") {
