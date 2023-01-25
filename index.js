@@ -97,7 +97,7 @@ function getBase64CodesBufferResultsBy4(buffer_1, buffer_2, buffer_3, buffer_4 )
 }
 function getBase64Code(char_code) {
 
-    return (base64codes[(char_code | 0) & 0xFF] | 0) >>> 0;
+    return (base64codes[(char_code | 0) & 0xFF] | 0) & 0xFF;
 }
 function getBase64CodesBuffer(str_char_codes) {
     return (getBase64Code(str_char_codes[0]) << 18 | getBase64Code(str_char_codes[1]) << 12 | getBase64Code(str_char_codes[2]) << 6 | getBase64Code(str_char_codes[3]) | 0) >>> 0;
@@ -131,7 +131,7 @@ SuperJSONatural.base64ToBytes = function (str, offset) {
 
     for (i = 0;(i+16|0) < (n|0); i = (i+16|0)>>>0, j = (j+12|0)>>>0) { // Single Operation Multiple Data (SIMD) up to 3x faster
 
-        str_char_code_splitted.set(str_char_code.subarray(i, i+16|0));
+        str_char_code_splitted = str_char_code.subarray(i, i+16|0);
         result.set(getBase64CodesBufferResultsBy4(
             getBase64CodesBuffer(str_char_code_splitted.subarray(0, 4)),
             getBase64CodesBuffer(str_char_code_splitted.subarray(4, 8)),
