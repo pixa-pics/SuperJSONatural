@@ -524,7 +524,6 @@ SuperJSONatural.prototype.stringify = function(data) {
 
     var getTypeFromData = this.getTypeFromData;
     function get_type(something) {
-
         return getTypeFromData(something);
     }
 
@@ -590,6 +589,148 @@ SuperJSONatural.prototype.parse = function(tree_for_json) {
 
 
     return decode_something(data, JSON.parse(tree_for_json), SuperJSONatural.TYPES, get_type, decode);
+};
+
+
+SuperJSONatural.prototype.pack = function(data) {
+
+    var tree_for_json = null;
+    function encode_something(to, something, get_type, to_string) {
+
+        var type = get_type(something);
+        if(type.id <= 22 && type.id >= 12) {
+
+            // Encode Typed Array
+            to = "$TA_" + type.id + "_PA&" + to_string(something.buffer);
+
+        }else if(type.id === 23) {
+
+            to = [];
+            something.forEach(function (to_within, to_index){
+
+                // to_index -> key, to_within -> value
+                to[to_index] = encode_something(null, to_within, get_type, to_string);
+            })
+
+        }else if(type.id === 24) {
+
+            to = {};
+            Object.entries(something).forEach(function (entry){
+
+                // 0 -> key, 1 -> value
+                to[entry[0]] = encode_something(null, entry[1], get_type, to_string);
+            });
+
+        }else {
+
+            to = something;
+        }
+
+        return to;
+    }
+
+    var bytesToBase64 = this.bytesToBase64;
+    var packed_body = new Uint8Array(0);
+    function encode(it) {
+
+        // Append the tail to the packed body
+        var tail = new Uint8Array(it);
+        var head = packed_body;
+        var from = head.length, to = from + tail.length;
+        var new_packed_body = new Uint8Array(from + tail.length);
+            new_packed_body.set(head, 0);
+            new_packed_body.set(tail, from);
+        packed_body = new_packed_body;
+
+        // Return the positions for getting a slice at unpacking
+        return "F="+from+"T="+to+"$";
+    }
+
+    var getTypeFromData = this.getTypeFromData;
+    function get_type(something) {
+        return getTypeFromData(something);
+    }
+
+    tree_for_json = encode_something(tree_for_json, data, get_type, encode);
+    var json_part = new TextEncoder().encode(JSON.stringify(tree_for_json));
+    var json_part_length = json_part.length;
+    var packed = new Uint8Array(2 + json_part.length + packed_body.length);
+        packed[0] = (json_part_length >> 0) & 0xff;
+        packed[1] = (json_part_length >> 8) & 0xff;
+        packed.set(json_part, 2);
+        packed.set(packed_body, 2+json_part.length);
+
+    return packed;
+};
+
+
+SuperJSONatural.prototype.unpack = function(buffer) {
+
+    var data = null;
+    function decode_something(to, something, types, get_type, from_string) {
+
+        var type = get_type(something);
+
+        if(type.id === 10) {
+
+            if(something.startsWith("$TA_")) {
+
+                var id = parseInt(something.charAt(4)+something.charAt(5));
+                    something = something.slice(12, something.length-1); // $TA_XX_PA&F= --> "XXXT=XXXX" <-- $
+                var from_to = something.split("T=");
+                var from_index = parseInt(from_to[0]);
+                var to_index = parseInt(from_to[1]);
+
+                something = from_string(from_index, to_index, types[id].instanceof);
+            }
+
+            to = something;
+
+        }else if(type.id === 23) {
+
+            to = [];
+            something.forEach(function (to_within, to_index){
+
+                // to_index -> key, to_within -> value
+                to[to_index] = decode_something(null, to_within, types, get_type, from_string);
+            })
+
+        }else if(type.id === 24) {
+
+            to = {};
+            Object.entries(something).forEach(function (entry){
+
+                // 0 -> key, 1 -> value
+                to[entry[0]] = decode_something(null, entry[1], types, get_type, from_string);
+            });
+
+        }else {
+
+            to = something;
+        }
+
+        return to;
+    }
+
+    var json_part_length = 0 | buffer[0] << 0 | buffer[1] << 8;
+    var json_part = buffer.slice(2, json_part_length+2);
+    var obj = JSON.parse(new TextDecoder().decode(json_part));
+    var packed_body = buffer.slice(json_part_length+2, buffer.length);
+
+    var base64ToBytes = this.base64ToBytes;
+
+    function decode(from_index, to_index, constructor) {
+
+        return new constructor(packed_body.buffer.slice(from_index, to_index));
+    }
+
+    var getTypeFromData = this.getTypeFromData;
+    function get_type(something) {
+
+        return getTypeFromData(something);
+    }
+
+    return decode_something(data, obj, SuperJSONatural.TYPES, get_type, decode);
 };
 
 if(typeof module != "undefined") {

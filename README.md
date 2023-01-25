@@ -6,7 +6,10 @@
 
 ![MIT](https://img.shields.io/badge/license-MIT-green)
 
-JSON yet, lighter & faster with the support of all JS TypedArray! It uses a Base64 optimized algorithm...
+JSON yet, lighter & faster with the support of all JS TypedArray! It uses a Base64 optimized algorithm... And for pack/unpack serialization it use a JSON lookup table on a appended buffer to the json also encoded inside a buffer, up to 5x faster!
+
+If you use larger TypedArray than buffer, simply use pack/unpack and work with ArrayBuffer.
+Meanwhile if you can't, the good old stringify/parse function will works fine based on String!
  
 ![npm](https://img.shields.io/npm/dw/superjsonatural?label=NPM%20DOWNLOAD&logo=NPM)
  
@@ -50,8 +53,15 @@ var data = {
 		hair: Uint32Array.of(999)
 	}
 };
+
+// It will be a string when encoded, always
 var encoded = SuperJSONatural().stringify(data);
 var decoded = SuperJSONatural().parse(encoded);
+console.log(data, encoded, decoded)
+
+// NEW!!! It will be a Uint8Array (Like a bytes array buffer)
+var encoded = SuperJSONatural().pack(data);
+var decoded = SuperJSONatural().unpack(encoded);
 console.log(data, encoded, decoded)
 
 ```
