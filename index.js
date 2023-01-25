@@ -384,6 +384,16 @@ SuperJSONatural.TYPES = [
     }
 ];
 
+SuperJSONatural.textEncoder = new TextEncoder();
+SuperJSONatural.textDecoder = new TextDecoder();
+
+SuperJSONatural.encodeString = function (string){
+    return SuperJSONatural.textEncoder.encode(string);
+};
+SuperJSONatural.decodeBuffer = function (buffer){
+    return SuperJSONatural.textDecoder.decode(buffer);
+};
+
 SuperJSONatural.prototype.getTypeFromData = function (data){
 
     switch(typeof data) {
@@ -652,7 +662,7 @@ SuperJSONatural.prototype.pack = function(data) {
     }
 
     tree_for_json = encode_something(tree_for_json, data, get_type, encode);
-    var json_part = new TextEncoder().encode(JSON.stringify(tree_for_json));
+    var json_part = SuperJSONatural.encodeString(JSON.stringify(tree_for_json));
     var json_part_length = json_part.length;
     var packed = new Uint8Array(2 + json_part.length + packed_body.length);
         packed[0] = (json_part_length >> 0) & 0xff;
@@ -714,7 +724,7 @@ SuperJSONatural.prototype.unpack = function(buffer) {
 
     var json_part_length = 0 | buffer[0] << 0 | buffer[1] << 8;
     var json_part = buffer.slice(2, json_part_length+2);
-    var obj = JSON.parse(new TextDecoder().decode(json_part));
+    var obj = JSON.parse(SuperJSONatural.decodeBuffer(json_part));
     var packed_body = buffer.slice(json_part_length+2, buffer.length);
 
     var base64ToBytes = this.base64ToBytes;

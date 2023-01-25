@@ -1,4 +1,5 @@
-# SuperJSONatural
+# SuperJSONatural - 8kB
+## Truly one of the world faster serializer/parser on the web
 
 ![SuperJSONatural branding logo](https://raw.githubusercontent.com/pixa-pics/SuperJSONatural/main/Branding.png)
 
@@ -6,7 +7,9 @@
 
 ![MIT](https://img.shields.io/badge/license-MIT-green)
 
-JSON yet, lighter & faster with the support of all JS TypedArray! It uses a Base64 optimized algorithm... And for pack/unpack serialization it use a JSON lookup table on a appended buffer to the json also encoded inside a buffer, up to 5x faster!
+JSON yet, somehow lighter & faster with the support of all JS TypedArray! It uses a Base64 optimized algorithm... when you use stringify and parse
+
+And for pack/unpack usage, it is binary serialization which use a JSON tree and lookup table which refer to a buffer appended to the json also encoded inside a buffer using TextEncoder(), up to 5x faster and somehow significally faster than the trusted CBOR-X while being 3.5x lighter! Check the demo ;)
 
 If you use larger TypedArray than buffer, simply use pack/unpack and work with ArrayBuffer.
 Meanwhile if you can't, the good old stringify/parse function will works fine based on String!
