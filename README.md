@@ -1,4 +1,4 @@
-# SuperJSONatural - 8kB
+# SuperJSONatural - 10kB
 ## Truly one of the world faster serializer/parser on the web
 
 ![SuperJSONatural branding logo](https://raw.githubusercontent.com/pixa-pics/SuperJSONatural/main/Branding.png)
