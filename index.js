@@ -30,7 +30,7 @@ var SuperJSONatural = function SuperJSONatural(chunck_size) {
         return new SuperJSONatural();
     }
 
-    this.chunck_size_ = (chunck_size | 0) || 4096*4;
+    this.chunck_size_ = (chunck_size | 0) || 4096;
     this.packed_head_ = new Uint8Array(this.chunck_size_);
     this.packed_body_ = new Uint8Array(this.chunck_size_);
 };
@@ -540,6 +540,7 @@ SuperJSONatural.prototype.pack = function (data) {
     var tree_for_json = null;
     var bytesToBase64 = this.bytesToBase64;
     var packed_body_offset = 0;
+    var packed_body = this.packed_body;
     var getTypeFromData = this.getTypeFromData;
 
     function get_type(something) {
@@ -551,16 +552,16 @@ SuperJSONatural.prototype.pack = function (data) {
         var tail = new Uint8Array(it);
 
         // Increase packed_body_size of 4096 bytes min at once
-        if (this.packed_body.length - packed_body_offset < tail.length) {
-            var new_packed_body = new Uint8Array(this.packed_body.length + Math.max(this.chunck_size, tail.length));
-                new_packed_body.set(this.packed_body, 0);
-            this.packed_body = new_packed_body;
+        if (packed_body.length - packed_body_offset < tail.length) {
+            var new_packed_body = new Uint8Array(packed_body.length + Math.max(this.chunck_size, tail.length));
+            new_packed_body.set(packed_body, 0);
+            packed_body = new_packed_body;
         }
 
         // Add the new data to the body of data
         var from = packed_body_offset,
             to = packed_body_offset + tail.length;
-        this.packed_body.set(tail, from);
+        packed_body.set(tail, from);
         packed_body_offset = to;
 
         // Return the positions for getting a slice at unpacking
@@ -645,8 +646,8 @@ SuperJSONatural.prototype.pack = function (data) {
         if(json_part_second.length > 0){ packed.set(json_part_second, json_part.length+2) }
 
         // Add body
-        packed.set(this.packed_body.subarray(0, packed_body_offset), 2 + json_part_length);
-
+        packed.set(packed_body.subarray(0, packed_body_offset), 2 + json_part_length);
+    this.packed_body = packed_body;
     return packed;
 };
 SuperJSONatural.prototype.unpack = function (buffer) {

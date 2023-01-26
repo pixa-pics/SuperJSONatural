@@ -1,6 +1,6 @@
 {
   "name": "superjsonatural",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "SuperJSONatural ⚡⚡⚡ ~9.5kB | JSON or Buffer with TypedArray, faster than CBOR & JSON.",
   "devDependencies": {
     "tinyify": "^4.0.0"
