@@ -24,14 +24,31 @@
 * SOFTWARE.
 */
 
-var SuperJSONatural = function SuperJSONatural() {
+var SuperJSONatural = function SuperJSONatural(chunck_size) {
 
     if (!(this instanceof SuperJSONatural)) {
         return new SuperJSONatural();
     }
 
-    this.packed_body_ = new Uint8Array(4096);
+    this.chunck_size_ = (chunck_size | 0) || 4096*4;
+    this.packed_head_ = new Uint8Array(this.chunck_size_);
+    this.packed_body_ = new Uint8Array(this.chunck_size_);
 };
+
+Object.defineProperty(SuperJSONatural.prototype, 'chunck_size', {
+    get: function get() {
+        return this.chunck_size_;
+    }
+});
+
+Object.defineProperty(SuperJSONatural.prototype, 'packed_head', {
+    get: function get() {
+        return this.packed_head_;
+    },
+    set: function set(x) {
+        this.packed_head_ = x;
+    }
+});
 
 Object.defineProperty(SuperJSONatural.prototype, 'packed_body', {
     get: function get() {
@@ -523,7 +540,6 @@ SuperJSONatural.prototype.pack = function (data) {
     var tree_for_json = null;
     var bytesToBase64 = this.bytesToBase64;
     var packed_body_offset = 0;
-    var packed_body = this.packed_body;
     var getTypeFromData = this.getTypeFromData;
 
     function get_type(something) {
@@ -535,15 +551,16 @@ SuperJSONatural.prototype.pack = function (data) {
         var tail = new Uint8Array(it);
 
         // Increase packed_body_size of 4096 bytes min at once
-        if (packed_body.length - packed_body_offset < tail.length) {
-            var new_packed_body = new Uint8Array(packed_body.length + Math.max(4096, tail.length));
-            new_packed_body.set(packed_body, 0);
-            packed_body = new_packed_body;
+        if (this.packed_body.length - packed_body_offset < tail.length) {
+            var new_packed_body = new Uint8Array(this.packed_body.length + Math.max(this.chunck_size, tail.length));
+                new_packed_body.set(this.packed_body, 0);
+            this.packed_body = new_packed_body;
         }
 
+        // Add the new data to the body of data
         var from = packed_body_offset,
             to = packed_body_offset + tail.length;
-        packed_body.set(tail, from);
+        this.packed_body.set(tail, from);
         packed_body_offset = to;
 
         // Return the positions for getting a slice at unpacking
@@ -585,14 +602,51 @@ SuperJSONatural.prototype.pack = function (data) {
 
     tree_for_json = encode_something(data);
 
-    this.packed_body = packed_body;
-    var json_part = SuperJSONatural.encodeString(JSON.stringify(tree_for_json));
-    var json_part_length = json_part.length;
-    var packed = new Uint8Array(2 + json_part.length + packed_body_offset);
+
+
+    var head_string = JSON.stringify(tree_for_json);
+
+    // This is a good estimation that will be large enough in allmost all case
+    // More than that in many case it leave the space (since we reuse memory)
+    // For another set of data to reuse the Uint8Array without re-allocating
+    var estimated_enough_head_size = head_string.length * 2 + 5;
+    var head_string_missing_part = new Uint8Array(0);
+    if(this.packed_head.length < estimated_enough_head_size) {
+        this.packed_head = new Uint8Array(estimated_enough_head_size);
+    }
+
+    var encode_results = SuperJSONatural.textEncoder.encodeInto(head_string, this.packed_head);
+    var encode_results_missing_part = {read: 0, written: 0};
+
+    // If the condition is true, it will need to encode the part it had not encoded
+    // Because a lack of free space
+    if(head_string.length > encode_results.read) {
+        head_string_missing_part = new Uint8Array((head_string.length - encode_results.read) * 3);
+        encode_results_missing_part = SuperJSONatural.textEncoder.encodeInto(head_string.slice(encode_results.read, head_string.length), head_string_missing_part);
+    }
+
+    // Compute the JSON part
+    var json_part, json_part_second = new Uint8Array(0), json_part_length = 0;
+    if(encode_results_missing_part.written === 0) {
+        json_part = this.packed_head.subarray(0, encode_results.written);
+        json_part_length = json_part.length;
+    }else {
+        json_part = this.packed_head.subarray(0, encode_results.written);
+        json_part_second = head_string_missing_part.subarray(0, encode_results_missing_part.written);
+        json_part_length = json_part.length+json_part_second.length;
+    }
+
+    var packed = new Uint8Array(2 + json_part_length + packed_body_offset);
         packed[0] = json_part_length >> 0 & 0xff;
         packed[1] = json_part_length >> 8 & 0xff;
+
+        // Add head and eventually the missing part
         packed.set(json_part, 2);
-        packed.set(packed_body.subarray(0, packed_body_offset), 2 + json_part.length);
+        if(json_part_second.length > 0){ packed.set(json_part_second, json_part.length+2) }
+
+        // Add body
+        packed.set(this.packed_body.subarray(0, packed_body_offset), 2 + json_part_length);
+
     return packed;
 };
 SuperJSONatural.prototype.unpack = function (buffer) {
