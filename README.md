@@ -1,4 +1,4 @@
-# SuperJSONatural - 10kB
+# SuperJSONatural - 9.77 kB
 ## Truly one of the world faster serializer/parser on the web
 
 ![SuperJSONatural branding logo](https://raw.githubusercontent.com/pixa-pics/SuperJSONatural/main/Branding.png)
@@ -18,6 +18,14 @@ Meanwhile if you can't, the good old stringify/parse function will works fine ba
  
 DEMO : [Go to codepen.io](https://codepen.io/vipertechofficial/pen/jOpyNZy) :sparkles:
 
+## Performances ( 1000 x 16kB )
+
+| NPM Package  | Packing        | Unpacking      |
+| :---         |     :---:      |     :---:      |
+| OURS         | 182ms          | 144ms          |
+| CBOR-X       | 202ms (+8%)    | 246ms (+70%)   |
+
+> Stringify takes 92ms while parsing take 255ms when it comes to working with string instead of the above BytesArray packing/unpacking methods, still worth the move!
 
 ## Install :package:
 

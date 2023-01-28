@@ -59,12 +59,6 @@ Object.defineProperty(SuperJSONatural.prototype, 'packed_body', {
     }
 });
 
-/*
-MIT License
-Copyright (c) 2020 Egor Nepomnyaschih
-Copyright (c) 2022 - 2023 Affolter Matias
-*/
-
 var base64abcCC = Uint8Array.of(65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43, 47);
 SuperJSONatural.prototype.bytesToBase64 = function (bytes) {
     "use strict";
@@ -165,208 +159,132 @@ SuperJSONatural.prototype.base64ToBytes = function (str, offset, constructor) {
     }
     return new constructor(result.buffer.slice(0, result.length - missingOctets));
 };
+
 SuperJSONatural.TYPES = [
 {
     id: 0,
     name: "undefined",
-    fixed: true,
-    bytes: 0,
-    header: 0,
     "typeof": "undefined",
     "instanceof": undefined
 }, {
     id: 1,
     name: "null",
-    fixed: true,
-    bytes: 0,
-    header: 0,
     "typeof": "object",
     "instanceof": undefined
 }, {
     name: "NaN",
     id: 2,
-    fixed: true,
-    bytes: 0,
-    header: 0,
     "typeof": "number",
     "instanceof": Object
 }, {
     name: "Infinity",
     id: 3,
-    fixed: true,
-    bytes: 0,
-    header: 0,
     "typeof": "number",
     "instanceof": undefined
 }, {
     name: "Boolean",
     id: 4,
-    fixed: true,
-    bytes: 1,
-    header: 0,
     "typeof": "boolean",
     "instanceof": undefined
 }, {
     name: "Int32",
     id: 5,
-    fixed: true,
-    bytes: 4,
-    header: 0,
     "typeof": "number",
     "instanceof": undefined
 }, {
     name: "Uint32",
     id: 6,
-    fixed: true,
-    bytes: 4,
-    header: 0,
     "typeof": "number",
     "instanceof": undefined
 }, {
     name: "Float32",
     id: 7,
-    fixed: true,
-    bytes: 4,
-    header: 0,
     "typeof": "number",
     "instanceof": undefined
 }, {
     name: "BigInt64",
     id: 8,
-    fixed: true,
-    bytes: 8,
-    header: 0,
     "typeof": "number",
     "instanceof": undefined
 }, {
     name: "Float64",
     id: 9,
-    fixed: true,
-    bytes: 4,
-    header: 0,
     "typeof": "number",
     "instanceof": undefined
 },
 {
     name: "String",
     id: 10,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "string",
     "instanceof": ""
 }, {
     name: "ArrayBuffer",
     id: 11,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": ArrayBuffer
 }, {
     name: "Int8Array",
     id: 12,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Int8Array
 }, {
     name: "Uint8Array",
     id: 13,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Uint8Array
 }, {
     name: "Uint8ClampedArray",
     id: 14,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Uint8ClampedArray
 }, {
     name: "Int16Array",
     id: 15,
-    fixed: false,
-    lbytes: 2,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Int16Array
 }, {
     name: "Uint16Array",
     id: 16,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Uint16Array
 }, {
     name: "Int32Array",
     id: 17,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Int32Array
 }, {
     name: "Uint32Array",
     id: 18,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Uint32Array
 }, {
     name: "Float32Array",
     id: 19,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Float32Array
 }, {
     name: "Float64Array",
     id: 20,
-    fixed: false,
-    lbytes: 2,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Float64Array
 }, {
     name: "BigInt64Array",
     id: 21,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": BigInt64Array
 }, {
     name: "BigUint64Array",
     id: 22,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": BigUint64Array
 }, {
     name: "Array",
     id: 23,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": Array
 }, {
     name: "Object",
     id: 24,
-    fixed: false,
-    bytes: 0,
-    header: 2,
     "typeof": "object",
     "instanceof": ""
 }];
@@ -538,10 +456,11 @@ SuperJSONatural.prototype.parse = function (tree_for_json) {
 SuperJSONatural.prototype.pack = function (data) {
 
     var tree_for_json = null;
-    var bytesToBase64 = this.bytesToBase64;
+    var chunck_size = this.chunck_size;
     var packed_body_offset = 0;
     var packed_body = this.packed_body;
     var getTypeFromData = this.getTypeFromData;
+    var tails = [];
 
     function get_type(something) {
         return getTypeFromData(something);
@@ -549,23 +468,16 @@ SuperJSONatural.prototype.pack = function (data) {
 
     function encode(it) {
         // Append the tail to the packed body
-        var tail = new Uint8Array(it);
-
-        // Increase packed_body_size of 4096 bytes min at once
-        if (packed_body.length - packed_body_offset < tail.length) {
-            var new_packed_body = new Uint8Array(packed_body.length + Math.max(this.chunck_size, tail.length));
-            new_packed_body.set(packed_body, 0);
-            packed_body = new_packed_body;
-        }
+        var tail = it instanceof Uint8Array ? it: new Uint8Array(it.buffer);
 
         // Add the new data to the body of data
-        var from = packed_body_offset,
-            to = packed_body_offset + tail.length;
-        packed_body.set(tail, from);
-        packed_body_offset = to;
+        var from = packed_body_offset | 0,
+            to = packed_body_offset + tail.length | 0;
+        tails.push(tail);
+        packed_body_offset = to|0;
 
         // Return the positions for getting a slice at unpacking
-        return "F=" + from + "T=" + to + "$";
+        return "F=" + from.toString() + "T=" + to.toString() + "$";
     }
 
     function encode_something(something) {
@@ -575,7 +487,7 @@ SuperJSONatural.prototype.pack = function (data) {
         if ((type.id | 0) <= 22 && (type.id | 0) >= 12) {
 
             // Encode Typed Array
-            something = "$TA_" + type.id + "_PA&" + encode(something.buffer);
+            something = "$TA_" + type.id + "_PA&" + encode(something);
         } else if ((type.id | 0) == 23) {
 
             something.forEach(function (to_within, to_index) {
@@ -601,11 +513,7 @@ SuperJSONatural.prototype.pack = function (data) {
         return something;
     }
 
-    tree_for_json = encode_something(data);
-
-
-
-    var head_string = JSON.stringify(tree_for_json);
+    var head_string = JSON.stringify(encode_something(data));
 
     // This is a good estimation that will be large enough in allmost all case
     // More than that in many case it leave the space (since we reuse memory)
@@ -637,18 +545,27 @@ SuperJSONatural.prototype.pack = function (data) {
         json_part_length = json_part.length+json_part_second.length;
     }
 
-    var packed = new Uint8Array(2 + json_part_length + packed_body_offset);
-        packed[0] = json_part_length >> 0 & 0xff;
-        packed[1] = json_part_length >> 8 & 0xff;
+    var packed_body_length = 2 + json_part_length + packed_body_offset;
+    if(this.packed_body.length < packed_body_length) {
+        this.packed_body = new Uint8Array(packed_body_length);
+    }
+
+
+    this.packed_body[0] = json_part_length >> 0 & 0xff;
+    this.packed_body[1] = json_part_length >> 8 & 0xff;
 
         // Add head and eventually the missing part
-        packed.set(json_part, 2);
-        if(json_part_second.length > 0){ packed.set(json_part_second, json_part.length+2) }
+    this.packed_body.set(json_part, 2);
+    if(json_part_second.length > 0){ this.packed_body.set(json_part_second, json_part.length+2) }
 
-        // Add body
-        packed.set(packed_body.subarray(0, packed_body_offset), 2 + json_part_length);
-    this.packed_body = packed_body;
-    return packed;
+    // Add body
+    var offset = 2+json_part_length|0;
+    for(var i = 0; (i|0) < (tails.length|0); i=i+1|0) {
+        this.packed_body.set(tails[i|0], offset|0);
+        offset = offset + tails[i|0].length;
+    }
+
+    return this.packed_body.slice(0, packed_body_length);
 };
 SuperJSONatural.prototype.unpack = function (buffer) {
 
@@ -657,7 +574,6 @@ SuperJSONatural.prototype.unpack = function (buffer) {
     var json_part_length = 0 | buffer[0] << 0 | buffer[1] << 8;
     var full_json_part_length = json_part_length + 2 | 0;
     var obj = JSON.parse(SuperJSONatural.decodeBuffer(buffer.subarray(2, full_json_part_length)));
-    var base64ToBytes = this.base64ToBytes;
 
     function decode(from_index, to_index, constructor) {
         return new constructor(buffer.slice(full_json_part_length + from_index, full_json_part_length + to_index).buffer);
