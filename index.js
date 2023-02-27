@@ -545,7 +545,7 @@ SuperJSONatural.prototype.pack = function (data) {
         json_part_length = json_part.length+json_part_second.length;
     }
 
-    var packed_body_length = 2 + json_part_length + packed_body_offset;
+    var packed_body_length = 4 + json_part_length + packed_body_offset;
     if(this.packed_body.length < packed_body_length) {
         this.packed_body = new Uint8Array(packed_body_length);
     }
@@ -553,13 +553,15 @@ SuperJSONatural.prototype.pack = function (data) {
 
     this.packed_body[0] = json_part_length >> 0 & 0xff;
     this.packed_body[1] = json_part_length >> 8 & 0xff;
+    this.packed_body[2] = json_part_length >> 16 & 0xff;
+    this.packed_body[3] = json_part_length >> 24 & 0xff;
 
         // Add head and eventually the missing part
-    this.packed_body.set(json_part, 2);
-    if(json_part_second.length > 0){ this.packed_body.set(json_part_second, json_part.length+2) }
+    this.packed_body.set(json_part, 4);
+    if(json_part_second.length > 0){ this.packed_body.set(json_part_second, json_part.length+4) }
 
     // Add body
-    var offset = 2+json_part_length|0;
+    var offset = 4+json_part_length|0;
     for(var i = 0; (i|0) < (tails.length|0); i=i+1|0) {
         this.packed_body.set(tails[i|0], offset|0);
         offset = offset + tails[i|0].length;
@@ -571,9 +573,9 @@ SuperJSONatural.prototype.unpack = function (buffer) {
 
     var getTypeFromData = this.getTypeFromData;
     var types = SuperJSONatural.TYPES;
-    var json_part_length = 0 | buffer[0] << 0 | buffer[1] << 8;
-    var full_json_part_length = json_part_length + 2 | 0;
-    var obj = JSON.parse(SuperJSONatural.decodeBuffer(buffer.subarray(2, full_json_part_length)));
+    var json_part_length = 0 | buffer[0] << 0 | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24;
+    var full_json_part_length = json_part_length + 4 | 0;
+    var obj = JSON.parse(SuperJSONatural.decodeBuffer(buffer.subarray(4, full_json_part_length)));
 
     function decode(from_index, to_index, constructor) {
         return new constructor(buffer.slice(full_json_part_length + from_index, full_json_part_length + to_index).buffer);
