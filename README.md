@@ -1,6 +1,5 @@
 # SuperJSONatural ~9kB
-
-## The best serializer and parser on the web
+## Truly one of the world faster serializer/parser on the web
 
 ![SuperJSONatural branding logo](https://raw.githubusercontent.com/pixa-pics/SuperJSONatural/main/Branding.png)
 
@@ -17,18 +16,7 @@ Meanwhile if you can't, the good old stringify/parse function will works fine ba
  
 ![npm](https://img.shields.io/npm/dw/superjsonatural?label=NPM%20DOWNLOAD&logo=NPM)
  
-Benchmark: https://jimmywarting.github.io/3th-party-structured-clone-wpt/
-
-**Faster than (on many different types of data):**	
-* cbor-x (1.5.2)	
-* cborg (1.10.1)	
-* msgpackr (1.8.5)	
-* flexbuffers (23.3.3)	
-* avro (5.7.7)	
-* bson (5.2.0)
-* ubjson (1.1.1)	
-* structured-clone (0.2.2)
-* sializer (0.2.0)
+DEMO : [Go to codepen.io](https://codepen.io/vipertechofficial/pen/jOpyNZy) :sparkles:
 
 ## Performances ( 1000 x 16kB )
 

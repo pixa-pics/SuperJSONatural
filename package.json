@@ -1,7 +1,7 @@
 {
   "name": "superjsonatural",
-  "version": "3.0.0",
-  "description": "SuperJSONatural ⚡⚡⚡ ~9kB | JSON or Buffer with TypedArray, faster than CBOR & JSON.",
+  "version": "3.1.0",
+  "description": "SuperJSONatural ⚡⚡⚡ < ~9kB | JSON or Buffer with TypedArray, faster than CBOR & JSON and msgpackr in some case.",
   "devDependencies": {
     "tinyify": "^4.0.0"
   },
@@ -12,6 +12,7 @@
     "superjsonatural",
     "super-json",
     "json",
+    "ubson",
     "typedarray",
     "uint8",
     "buffer",
@@ -27,7 +28,8 @@
     "encode",
     "decode",
     "cbor",
-    "cbor-x"
+    "cbor-x",
+    "msgpackr"
   ],
   "license": "MIT",
   "repository": {
